@@ -1,0 +1,8 @@
+{
+  "name": "Copy of Mystic Cyber-Sanctum",
+  "description": "A real-time interactive Dr. Strange style magic circle powered by Three.js and MediaPipe, with spell analysis via Gemini API.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
