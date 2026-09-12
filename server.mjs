@@ -9,13 +9,14 @@ http.createServer(async (req, res) => {
   try {
     const input = await read(req);
     if (req.url === "/v1/translate") {
-      const upstream = await fetch("https://api.openai.com/v1/responses", { method: "POST", headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" }, body: JSON.stringify({ model: "gpt-5-mini", input: `Translate into concise Simplified Chinese. Return only the translation.\\n\\n${input.text}` }) });
+      const upstream = await fetch("https://api.openai.com/v1/responses", { method: "POST", headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" }, body: JSON.stringify({ model: "gpt-5-mini", input: `Translate into concise Simplified Chinese. Return only the translation.\n\n${input.text}` }) });
       const result = await upstream.json();
       if (!upstream.ok) return reply(res, upstream.status, result);
       return reply(res, 200, { translation: result.output_text || "" });
     }
     if (req.url !== "/v1/realtime-credential") return reply(res, 404, { error: "Not found" });
-    const upstream = await fetch("https://api.openai.com/v1/realtime/client_secrets", { method: "POST", headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" }, body: JSON.stringify({ session: { type: "transcription", audio: { input: { transcription: { model: "gpt-live-transcribe", prompt: input.course, keywords: String(input.vocabulary || "").split("\n").filter(Boolean), languages: ["en"], delay: "low" } } } }) });
+    const sessionConfig = { session: { type: "transcription", audio: { input: { transcription: { model: "gpt-live-transcribe", prompt: input.course, keywords: String(input.vocabulary || "").split("\n").filter(Boolean), languages: ["en"], delay: "low" } } } } };
+    const upstream = await fetch("https://api.openai.com/v1/realtime/client_secrets", { method: "POST", headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" }, body: JSON.stringify(sessionConfig) });
     const result = await upstream.json();
     if (!upstream.ok) return reply(res, upstream.status, result);
     reply(res, 200, { value: result.client_secret?.value ?? result.value });
