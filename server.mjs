@@ -24,7 +24,11 @@ http.createServer(async (req, res) => {
       const upstream = await fetch("https://api.openai.com/v1/responses", {
         method: "POST",
         headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ model: "gpt-5-mini", input: "Translate into concise Simplified Chinese. Return only the translation.\n\n" + input.text })
+        body: JSON.stringify({
+          model: "gpt-5-nano",
+          max_output_tokens: 96,
+          input: "Translate into concise Simplified Chinese. Return only the translation.\n\n" + input.text
+        })
       });
       const result = await upstream.json();
       if (!upstream.ok) return reply(res, upstream.status, result);
