@@ -46,12 +46,13 @@ http.createServer(async (req, res) => {
         type: "transcription",
         audio: { input: {
           transcription: {
-            model: "gpt-transcribe",
+            model: "gpt-live-transcribe",
             prompt: input.course,
             keywords: String(input.vocabulary || "").split("\n").filter(Boolean),
-            languages: ["en"]
+            languages: ["en"],
+            delay: "minimal"
           },
-          turn_detection: { type: "server_vad", threshold: 0.5, prefix_padding_ms: 300, silence_duration_ms: 700 }
+          turn_detection: { type: "server_vad", threshold: 0.35, prefix_padding_ms: 500, silence_duration_ms: 350 }
         } }
       }
     };
