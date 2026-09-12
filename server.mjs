@@ -24,18 +24,11 @@ http.createServer(async (req, res) => {
       const upstream = await fetch("https://api.openai.com/v1/responses", {
         method: "POST",
         headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "gpt-5-mini",
-          input: "Translate into concise Simplified Chinese. Return only the translation.\n\n" + input.text
-        })
+        body: JSON.stringify({ model: "gpt-5-mini", input: "Translate into concise Simplified Chinese. Return only the translation.\n\n" + input.text })
       });
       const result = await upstream.json();
       if (!upstream.ok) return reply(res, upstream.status, result);
-      const translation = result.output_text || result.output
-        ?.flatMap(item => item.content || [])
-        .filter(content => content.type === "output_text")
-        .map(content => content.text || "")
-        .join("") || "";
+      const translation = result.output_text || result.output?.flatMap(item => item.content || []).filter(content => content.type === "output_text").map(content => content.text || "").join("") || "";
       if (!translation) return reply(res, 502, { error: "OpenAI returned an empty translation." });
       return reply(res, 200, { translation });
     }
@@ -44,16 +37,18 @@ http.createServer(async (req, res) => {
     const sessionConfig = {
       session: {
         type: "transcription",
-        audio: { input: {
-          transcription: {
-            model: "gpt-live-transcribe",
-            prompt: input.course,
-            keywords: String(input.vocabulary || "").split("\n").filter(Boolean),
-            languages: ["en"],
-            delay: "minimal"
-          },
-          turn_detection: { type: "server_vad", threshold: 0.35, prefix_padding_ms: 500, silence_duration_ms: 350 }
-        } }
+        audio: {
+          input: {
+            transcription: {
+              model: "gpt-live-transcribe",
+              prompt: input.course,
+              keywords: String(input.vocabulary || "").split("\n").filter(Boolean),
+              languages: ["en"],
+              delay: "minimal"
+            },
+            turn_detection: null
+          }
+        }
       }
     };
     const upstream = await fetch("https://api.openai.com/v1/realtime/client_secrets", {
